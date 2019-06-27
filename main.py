@@ -121,7 +121,6 @@ def load_config(mode=None):
 
         if args.output is not None:
             config.RESULTS = args.output
-
     # eval mode
     elif mode == 3:
         config.MODE = 3
