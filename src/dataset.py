@@ -1,5 +1,6 @@
 import os
 import glob
+import pdb
 import scipy
 import torch
 import random
@@ -88,6 +89,7 @@ class Dataset(torch.utils.data.Dataset):
         # in test mode images are masked (with masked regions),
         # using 'mask' parameter prevents canny to detect edges for the masked regions
         mask = None if self.training else (1 - mask / 255).astype(np.bool)
+        pdb.set_trace()
 
         # canny
         if self.edge == 1:

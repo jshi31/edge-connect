@@ -1,8 +1,12 @@
 import os
+import pdb
+
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
-from .dataset import Dataset
+
+# from .dataset import Dataset # TODO there is minor difference with my tensor test input.
+from .customdataset import Dataset
 from .models import EdgeModel, InpaintingModel
 from .utils import Progbar, create_dir, stitch_images, imsave
 from .metrics import PSNR, EdgeAccuracy
@@ -36,6 +40,8 @@ class EdgeConnect():
             self.train_dataset = Dataset(config, config.TRAIN_FLIST, config.TRAIN_EDGE_FLIST, config.TRAIN_MASK_FLIST, augment=True, training=True)
             self.val_dataset = Dataset(config, config.VAL_FLIST, config.VAL_EDGE_FLIST, config.VAL_MASK_FLIST, augment=False, training=True)
             self.sample_iterator = self.val_dataset.create_iterator(config.SAMPLE_SIZE)
+
+        self.custum_dataset = Dataset(config)
 
         self.samples_path = os.path.join(config.PATH, 'samples')
         self.results_path = os.path.join(config.PATH, 'results')
@@ -292,7 +298,7 @@ class EdgeConnect():
 
             logs = [("it", iteration), ] + logs
             progbar.add(len(images), values=logs)
-
+    """
     def test(self):
         self.edge_model.eval()
         self.inpaint_model.eval()
@@ -342,6 +348,21 @@ class EdgeConnect():
                 imsave(masked, os.path.join(self.results_path, fname + '_masked.' + fext))
 
         print('\nEnd test....')
+    """
+
+    def test(self, img, mask):
+        self.edge_model.eval()
+        self.inpaint_model.eval()
+
+        create_dir(self.results_path)
+
+        items = self.custum_dataset.get_item(img, mask)
+        images, images_gray, edges, masks = self.cuda(*items)
+        outputs = self.inpaint_model(images, edges, masks)
+        outputs_merged = (outputs * masks) + (images * (1 - masks))
+
+        output = self.postprocess(outputs_merged)[0]
+        return output
 
     def sample(self, it=None):
         # do not sample when validation set is empty
