@@ -34,13 +34,14 @@ class EdgeConnect():
         self.edgeacc = EdgeAccuracy(config.EDGE_THRESHOLD).to(config.DEVICE)
 
         # test mode
+        """
         if self.config.MODE == 2:
             self.test_dataset = Dataset(config, config.TEST_FLIST, config.TEST_EDGE_FLIST, config.TEST_MASK_FLIST, augment=False, training=False)
         else:
             self.train_dataset = Dataset(config, config.TRAIN_FLIST, config.TRAIN_EDGE_FLIST, config.TRAIN_MASK_FLIST, augment=True, training=True)
             self.val_dataset = Dataset(config, config.VAL_FLIST, config.VAL_EDGE_FLIST, config.VAL_MASK_FLIST, augment=False, training=True)
             self.sample_iterator = self.val_dataset.create_iterator(config.SAMPLE_SIZE)
-
+        """
         self.custum_dataset = Dataset(config)
 
         self.samples_path = os.path.join(config.PATH, 'samples')
@@ -355,14 +356,12 @@ class EdgeConnect():
         self.inpaint_model.eval()
 
         create_dir(self.results_path)
-
-        items = self.custum_dataset.get_item(img, mask)
-        images, images_gray, edges, masks = self.cuda(*items)
-        outputs = self.inpaint_model(images, edges, masks)
-        outputs_merged = (outputs * masks) + (images * (1 - masks))
-
-        output = self.postprocess(outputs_merged)[0]
-        return output
+        with torch.no_grad():
+            items = self.custum_dataset.get_item(img, mask)
+            images, images_gray, edges, masks = self.cuda(*items)
+            outputs = self.inpaint_model(images, edges, masks)
+            outputs_merged = (outputs * masks) + (images * (1 - masks))
+        return outputs_merged
 
     def sample(self, it=None):
         # do not sample when validation set is empty
@@ -434,3 +433,5 @@ class EdgeConnect():
         img = img * 255.0
         img = img.permute(0, 2, 3, 1)
         return img.int()
+
+

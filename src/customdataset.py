@@ -36,7 +36,12 @@ class Dataset(object):
         return torch.stack(imgs), torch.stack(imgs_gray), torch.stack(edges), torch.stack(masks)
 
     def load_mask(self, mask):
-        mask = rgb2gray(mask)
+        """
+        :param mask: (3, h, w) or (1, h, w)
+        :return:
+        """
+        if len(mask) == 3:
+            mask = rgb2gray(mask)
         mask = (mask > 0).astype(np.uint8) * 255
         return mask
 
@@ -55,5 +60,5 @@ class Dataset(object):
         :param x: (3, h, w)  [0, 1]
         :return: out
         """
-        out = (x.permute(1, 2, 0).numpy()*255).astype(np.uint8)
+        out = (x.permute(1, 2, 0).cpu().numpy()*255).astype(np.uint8)
         return out
