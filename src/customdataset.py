@@ -37,15 +37,19 @@ class Dataset(object):
 
     def load_mask(self, mask):
         """
-        :param mask: (3, h, w) or (1, h, w)
-        :return:
+        :param mask: (3, h, w)
+        :return: mask (h, w)
         """
-        if len(mask) == 3:
-            mask = rgb2gray(mask)
+        mask = rgb2gray(mask)
         mask = (mask > 0).astype(np.uint8) * 255
         return mask
 
     def load_edge(self, img, mask):
+        """
+        :param img: (h, w)
+        :param mask: (h, w)
+        :return edge: (h, w)
+        """
         sigma = self.sigma
         mask = (1 - mask / 255).astype(np.bool)
         return canny(img, sigma=sigma, mask=mask).astype(np.float)

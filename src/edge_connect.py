@@ -354,7 +354,6 @@ class EdgeConnect():
     def test(self, img, mask):
         self.edge_model.eval()
         self.inpaint_model.eval()
-
         create_dir(self.results_path)
         with torch.no_grad():
             items = self.custum_dataset.get_item(img, mask)
