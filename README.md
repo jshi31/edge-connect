@@ -15,7 +15,7 @@ We develop a new approach for image inpainting that does a better job of reprodu
 ## Installation
 - Clone this repo:
 ```bash
-git clone https://github.com/knazeri/edge-connect.git
+git clone https://github.com/jshi31/edge-connect.git
 cd edge-connect
 ```
 - Install PyTorch and dependencies from http://pytorch.org
